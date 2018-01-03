@@ -10,10 +10,12 @@ import lejos.nxt.*;
 
 public class Kasivarsi {
 	
-	/** Moottori A on kytketty A-porttiin ja liikuttaa robotin olkavartta. */
+	/** Moottori A on kytketty A-porttiin ja vapauttaa robotin kourasta yhden pelimerkin. */
 	private NXTRegulatedMotor moottoriA;
 	/** Moottori B on kytketty B-porttiin ja liikuttaa robotin kyynärvartta. */
 	private NXTRegulatedMotor moottoriB;
+	/** Moottori C on kytketty C-porttiin ja liikuttaa robotin olkavartta. */
+	private NXTRegulatedMotor moottoriC;
 	
 	/**
 	 * Konstruktorissa alustetaan robotin käsivartta liikuttavat moottorit.
@@ -21,26 +23,28 @@ public class Kasivarsi {
 	public Kasivarsi() {
 		this.moottoriA = Motor.A;
 		this.moottoriB = Motor.B;
-		moottoriA.setSpeed(50);
+		this.moottoriC = Motor.C;
+		moottoriA.setSpeed(20);
 		moottoriB.setSpeed(70);
+		moottoriC.setSpeed(50);
 	}
 	
 	/**
 	 * Liikutetaan käsivartta kääntämällä molemmat moottorit haluttuun asentoon.
-	 * @param a moottori A:n haluttu kulma
+	 * @param c moottori C:n haluttu kulma
 	 * @param b moottori B:n haluttu kulma
 	 */
-	public void liiku(int a, int b) {
-		moottoriA.rotateTo(a);
+	public void liiku(int c, int b) {
+		moottoriC.rotateTo(c);
 		moottoriB.rotateTo(b);		
 	}
 	
 	/**
-	 * Liikutetaan olkavartta kääntämällä moottoria A.
-	 * @param a moottori A:n haluttu kulma
+	 * Liikutetaan olkavartta kääntämällä moottoria C.
+	 * @param c moottori C:n haluttu kulma
 	 */
-	public void liikuSuunnassaA(int a) {
-		moottoriA.rotateTo(a);
+	public void liikuSuunnassaC(int c) {
+		moottoriC.rotateTo(c);
 	}
 	
 	/**
@@ -49,5 +53,12 @@ public class Kasivarsi {
 	 */
 	public void liikuSuunnassaB(int b) {
 		moottoriB.rotateTo(b);
+	}
+	
+	/**
+	 * Vapautetaan kourasta yksi pelimerkki pyöräyttämällä moottoria A.
+	 */
+	public void pudotaMerkki() {
+		moottoriA.rotate(-90);
 	}
 }
