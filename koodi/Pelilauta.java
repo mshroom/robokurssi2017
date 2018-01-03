@@ -1,6 +1,6 @@
 
 /**
- * Pelilauta-luokka hallinnoi pelialueen ruutuja ja ohjaa käsivartta, jonka avulla robotti liikkuu pelilaudalla. 
+ * Pelilauta-luokka hallinnoi pelialueen ruutuja ja ohjaa käsivartta, jonka avulla robotti liikkuu pelilaudalla ja jättää pelimerkkejään. 
  * 
  * @author mshroom
  *
@@ -28,15 +28,15 @@ public class Pelilauta {
 	 * Alustetaan pelialueen ruudut asettamalla jokaiselle Ruutu-oliolle ruudun keskipistettä vastaavat moottorien kulmat.
 	 */	
 	private void alustaRuudut() {
-		this.ruudukko[0][0].setMoottorinKulmat(95, -115);
-		this.ruudukko[0][1].setMoottorinKulmat(75, -110);
-		this.ruudukko[0][2].setMoottorinKulmat(60, -110);
-		this.ruudukko[1][0].setMoottorinKulmat(80, -70);
-		this.ruudukko[1][1].setMoottorinKulmat(55, -55);
-		this.ruudukko[1][2].setMoottorinKulmat(35, -55);
-		this.ruudukko[2][0].setMoottorinKulmat(85, -40);
-		this.ruudukko[2][1].setMoottorinKulmat(55, -25);
-		this.ruudukko[2][2].setMoottorinKulmat(20, -25);
+		this.ruudukko[0][0].setMoottorinKulmat(102, -87);
+		this.ruudukko[0][1].setMoottorinKulmat(80, -75);
+		this.ruudukko[0][2].setMoottorinKulmat(65, -73);
+		this.ruudukko[1][0].setMoottorinKulmat(95, -32);
+		this.ruudukko[1][1].setMoottorinKulmat(67, -20);
+		this.ruudukko[1][2].setMoottorinKulmat(37, -20);
+		this.ruudukko[2][0].setMoottorinKulmat(100, 10);
+		this.ruudukko[2][1].setMoottorinKulmat(75, 30);
+		this.ruudukko[2][2].setMoottorinKulmat(28, 25);
 	}
 	
 	/**
@@ -46,14 +46,21 @@ public class Pelilauta {
 	 */
 	public void kuljeRuutuun(int x, int y) {
 		Ruutu ruutu = this.ruudukko[x][y];
-		kasi.liiku(ruutu.getMoottorinKulmaA(), ruutu.getMoottorinKulmaB());
+		kasi.liiku(ruutu.getMoottorinKulmaC(), ruutu.getMoottorinKulmaB());
 	}
-  
+	
 	/**
 	 * Palautetaan käsivarsi alkuasentoon pelilaudan ulkopuolelle.
 	 */
 	public void palaaKotiin() {
 		kasi.liiku(0, 0);
+	}
+	
+	/**
+	 * Jätetään pelimerkki siihen ruutuun, jossa käsivarsi parhaillaan on.
+	 */
+	public void jataPelimerkki() {
+		kasi.pudotaMerkki();
 	}
 	
 }
