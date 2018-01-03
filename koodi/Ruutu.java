@@ -12,8 +12,8 @@ public class Ruutu {
 	private int x;
 	/** Sarake (0, 1 tai 2 vasemmalta oikealle). */
 	private int y;
-	/** Olkavartta liikuttavan A-moottorin kulma sensorin ollessa ruudun keskikohdassa. */
-	private int moottorinKulmaA;
+	/** Olkavartta liikuttavan C-moottorin kulma sensorin ollessa ruudun keskikohdassa. */
+	private int moottorinKulmaC;
 	/** Kyynärvartta liikuttavan B-moottorin kulma sensorin ollessa ruudun keskikohdassa. */
 	private int moottorinKulmaB;
 	
@@ -22,13 +22,13 @@ public class Ruutu {
 		this.y = y;
 	}
 	
-	public void setMoottorinKulmat(int asteA, int asteB) {
-		this.moottorinKulmaA = asteA;
+	public void setMoottorinKulmat(int asteC, int asteB) {
+		this.moottorinKulmaC = asteC;
 		this.moottorinKulmaB = asteB;
 	}
 	
-	public int getMoottorinKulmaA() {
-		return this.moottorinKulmaA;
+	public int getMoottorinKulmaC() {
+		return this.moottorinKulmaC;
 	}
 	
 	public int getMoottorinKulmaB() {
