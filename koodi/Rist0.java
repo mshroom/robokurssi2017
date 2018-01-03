@@ -3,7 +3,7 @@ import lejos.util.Delay;
 import java.util.Random;
 
 /**
- * Pääluokka tällä hetkellä lähinnä testaa robotin käsivarren toimintaa.
+ * Pääluokka tällä hetkellä testaa robotin käsivarren ja valosensorin toimintaa. Robotti kulkee peliruudukossa ja pudottaa pelimerkin jokaiseen ruutuun, jossa ei ole vastustajan pelimerkkiä.
  * 
  * @author mshroom
  * 
@@ -11,13 +11,26 @@ import java.util.Random;
 public class Rist0 {
 	public static void main (String[] aArg) throws Exception  {
 		Pelilauta peli = new Pelilauta();
-		for (int i = 0; i < 10; i ++) {
-			Random arpa = new Random();
-			int x = arpa.nextInt(3);
-			int y = arpa.nextInt(3);
+		LightSensor light = new LightSensor(SensorPort.S1);
+		
+	// Kalibroidaan valosensori mustassa ja valkoisessa ruudussa
+	light.calibrateLow();
+	peli.kuljeRuutuun(2, 2);
+	Delay.msDelay(1000);
+	light.calibrateHigh();
+	Delay.msDelay(1000);
+	
+		
+	for (int x = 0; x < 3; x ++) {
+		for (int y = 0; y < 3; y ++) {
 			peli.kuljeRuutuun(x, y);
+			Delay.msDelay(1000);
+			if (light.getLightValue() > 50) {
+				peli.jataPelimerkki();
+			}
 			Delay.msDelay(2000);
 		}
-		peli.palaaKotiin();
+	}
+	peli.palaaKotiin();
 	}
 }
