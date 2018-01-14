@@ -1,3 +1,5 @@
+import lejos.nxt.LCD;
+import lejos.nxt.Sound;
 import lejos.util.Delay;
 import java.util.Random;
 
@@ -8,7 +10,6 @@ import java.util.Random;
  *
  */
 public class Peli {
-
 	/** Ruudukkoon on tallennettu pelitilanne. 0 = tyhjä ruutu, 1 = risti (robotti), 2 = nolla (ihminen). */
 	private int[][] ruudukko;
 	/** Pelilaudan kautta hallitaan fyysistä pelialuetta ja robottia. */
@@ -17,17 +18,20 @@ public class Peli {
 	private int vuoro;
 	/** Tulos kertoo pelin voittajan. -1 = peli kesken, 0 = tasapeli, 1 = risti, 2 = nolla. */
 	private int tulos;
+	/** Vaikeustaso 1 = helppo, 2 = vaikea. */
+	private int vaikeustaso;
 	
 	/**
 	 * Konstruktorissa alustetaan pelitilanne ja pelilauta.
 	 */
-	public Peli() {
+	public Peli(int vaikeustaso) {
 		this.ruudukko = new int[3][3];
 		this.pelilauta = new Pelilauta();
 		this.vuoro = 1;
 		this.tulos = -1;
-	}  
-  	
+		this.vaikeustaso = vaikeustaso;
+	}
+	
 	/**
 	 * Pyydetään pelilautaa suorittamaan valosensorin kalibrointi.
 	 */
@@ -43,13 +47,16 @@ public class Peli {
 	public void risti(int x, int y) {
 		this.ruudukko[x][y] = 1;
 		this.vuoro ++;
-		pelilauta.viePelimerkki(x, y);  
+		pelilauta.viePelimerkki(x, y);
 	}
-  /**
+	
+	/**
 	 * Käydään läpi kaikki tyhjänä olleet ruudut ja tarkistetaan, onko niissä vastustajan pelimerkkiä. Jos merkki löytyy, päivitetään pelimuuttujat.
 	 * @return true, mikäli uusi pelimerkki havaitaan.
 	 */
 	public boolean paivitaPelitilanne() {
+		LCD.clear();
+		LCD.drawString("Tutkitaan", 0, 0);
 		for (int x = 0; x < 3; x ++) {
 			for (int y = 0; y < 3; y ++) {
 				if (this.ruudukko[x][y] == 0) {
@@ -58,21 +65,29 @@ public class Peli {
 					if (pelilauta.onkoVastustajanMerkki()) {
 						this.ruudukko[x][y] = 2;
 						this.vuoro ++;
-						pelilauta.palaaKotiin();
 						Delay.msDelay(2000);
 						return true;
 					}
 				}
 			}
 		}
-		pelilauta.palaaKotiin();
 		return false;
-	}  
-  
+	}
+	
 	/**
-	 * Tehdään robotin siirto. Käydään ensin läpi erikoistilanteet. Jos ne eivät aiheuta toimenpiteitä, analysoidaan paras siirto ja tehdään se.
+	 * Tehdään robotin siirto. Jos vaikeustaso on helppo, arvotaan tehdäänkö satunnainen siirto vai optimoitu siirto. Optimoidussa siirrossa käydään ensin läpi erikoistilanteet. Jos ne eivät aiheuta toimenpiteitä, analysoidaan paras siirto ja tehdään se.
 	 */
 	public void siirto() {
+		LCD.clear();
+		LCD.drawString("Robotin vuoro", 0, 0);
+		if (this.vaikeustaso == 1) {
+			Random arpa = new Random();
+			int arvottu = arpa.nextInt(2);
+			if (arvottu == 0) {
+				this.randomSiirto();
+				return;
+			}
+		}
 		if (this.vuoro == 1) {
 			this.aloitusSiirto();
 			return;
@@ -88,6 +103,26 @@ public class Peli {
 			}					
 		}
 		this.laskeParasSiirto();				
+	}
+	
+	/**
+	 * Tehdään satunnainen siirto johonkin tyhjään ruutuun.
+	 */
+	public void randomSiirto() {
+		Random arpa = new Random();
+		int arvottu = arpa.nextInt(this.vapaitaRuutuja());
+		for (int x = 0; x < 3; x ++) {
+			for (int y = 0; y < 3; y ++) {
+				if (this.ruudukko[x][y] == 0) {
+					if (arvottu == 0) {
+						this.risti(x, y);
+						return;
+					} else {
+						arvottu --;
+					}
+				}
+			}
+		}
 	}
 	
 	/**
@@ -149,8 +184,8 @@ public class Peli {
 			this.risti(2, 2);
 		}
 	}
-  
-  	/**
+	
+	/**
 	 * Lasketaan ja suoritetaan paras siirto. Paras siirto lasketaan pisteyttämällä tyhjät ruudut sen mukaan, kuinka paljon leikkaavilla suorilla on omia ja vastustajan pelimerkkejä.
 	 */
 	private void laskeParasSiirto() {
@@ -238,16 +273,11 @@ public class Peli {
 				}
 				
 			}			
-		}
-		
-		if (parasX != -1 && parasY != -1) {
-			this.risti(parasX, parasY);
-		} else {
-			this.ilmoitaVirheesta();
-		}				
+		}		
+		this.risti(parasX, parasY);					
 	}
-  
-  	/**
+	
+	/**
 	 * Tutkitaan, onko tarkasteltavaa merkkiä jokin tietty määrä tietyllä rivillä.
 	 * @param rivi Tarkasteltava rivi
 	 * @param merkki Tarkasteltava merkki (0, 1 tai 2)
@@ -342,14 +372,14 @@ public class Peli {
 	 * @return true, jos peli on päättynyt.
 	 */
 	public boolean peliOhi() {
-		if (this.ruudukkoTaysi()) {
-			this.tulos = 0;
-			return true;
-		} else if (this.voittosuora(1)) {
+		if (this.voittosuora(1)) {
 			this.tulos = 1;
 			return true;
 		} else if (this.voittosuora(2)) {
 			this.tulos = 2;
+			return true;
+		} else if (this.vapaitaRuutuja() == 0) {
+			this.tulos = 0;
 			return true;
 		} else {
 			return false;
@@ -382,25 +412,79 @@ public class Peli {
 
 	
 	/**
-	 * Tarkistetaan, onko ruudukko täysi.
-	 * @return true, jos ruudukossa ei enää ole yhtään tyhjää paikkaa.
+	 * Tutkitaan, kuinka monta vapaata ruutua on jäljellä.
+	 * @return vapaiden ruutujen määrä.
 	 */
-	private boolean ruudukkoTaysi() {
+	private int vapaitaRuutuja() {
+		int vapaita = 0;
 		for (int x = 0; x < 3; x ++) {
 			for (int y = 0; y < 3; y ++) {
 				if (this.ruudukko[x][y] == 0) {
-					return false;
+					vapaita ++;
 				}
 			}
 		}
-		return true;
+		return vapaita;
 	}
 	
 	/**
-	 * Testaukseen käytettävä virheilmoitus, joka toistaiseksi ei tee mitään kovin älykästä.
+	 * Virheilmoitus. Käytetään testauksessa sekä silloin, kun robotti ei löydä vastustajan pelimerkkiä.
 	 */
 	public void ilmoitaVirheesta() {
 		this.pelilauta.palaaKotiin();
-		this.pelilauta.jataPelimerkki();
+		Sound.buzz();
+	}	
+	
+	/**
+	 * Ilmoitetaan pelin lopputulos merkkiäänellä ja näytölle tulostettavalla tekstillä.
+	 */
+	public void kerroTulos() {
+		LCD.clear();
+		this.pelilauta.palaaKotiin();
+		if (this.tulos == 0) {
+			  LCD.drawString("Tasapeli", 0, 0);
+			  Sound.playTone(294, 100);
+			  Sound.pause(105);
+			  Sound.playTone(311, 100);
+			  Sound.pause(105);
+			  Sound.playTone(349, 100);
+			  Sound.pause(105);
+			  Sound.playTone(294, 100);
+			  Sound.pause(105);
+			  Sound.playTone(262, 100);
+			  Sound.pause(105);
+			  Sound.playTone(233, 100);
+			  Sound.pause(105);
+			  Sound.playTone(294, 300);
+		  } else if (this.tulos == 1) {
+			  LCD.drawString("Rist-0 voitti!", 0, 0);
+			  Sound.playTone(294, 120);
+			  Sound.pause(200);
+			  Sound.playTone(294, 100);
+			  Sound.pause(105);
+			  Sound.playTone(349, 100);
+			  Sound.pause(105);
+			  Sound.playTone(294, 100);
+			  Sound.pause(105);
+			  Sound.playTone(349, 100);
+			  Sound.pause(105);
+			  Sound.playTone(466, 300);
+		  } else if (this.tulos == 2) {		  
+			  LCD.drawString("Voitit pelin!", 0, 0);
+			  Sound.playTone(294, 100);	
+			  Sound.pause(105);
+			  Sound.playTone(277, 100);
+			  Sound.pause(105);
+			  Sound.playTone(294, 100);
+			  Sound.pause(105);
+			  Sound.playTone(233, 100);
+			  Sound.pause(105);
+			  Sound.playTone(220, 100);
+			  Sound.pause(105);
+			  Sound.playTone(233, 100);
+			  Sound.pause(105);
+			  Sound.playTone(196, 300);
+		  }
+		  Delay.msDelay(3000);
 	}
 }
