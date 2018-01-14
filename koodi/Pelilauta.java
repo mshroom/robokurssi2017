@@ -45,9 +45,9 @@ public class Pelilauta {
 	 * Alustetaan pelialueen ruudut asettamalla jokaiselle Ruutu-oliolle ruudun keskipistettä vastaavat moottorien kulmat.
 	 */	
 	private void alustaRuudut() {
-		this.ruudukko[0][0].setMoottorinKulmat(102, -87);
-		this.ruudukko[0][1].setMoottorinKulmat(77, -67);
-		this.ruudukko[0][2].setMoottorinKulmat(60, -73);
+		this.ruudukko[0][0].setMoottorinKulmat(104, -85);
+		this.ruudukko[0][1].setMoottorinKulmat(80, -65);
+		this.ruudukko[0][2].setMoottorinKulmat(65, -71);
 		this.ruudukko[1][0].setMoottorinKulmat(95, -32);
 		this.ruudukko[1][1].setMoottorinKulmat(67, -15);
 		this.ruudukko[1][2].setMoottorinKulmat(37, -15);
