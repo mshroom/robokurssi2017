@@ -25,8 +25,8 @@ public class Kasivarsi {
 		this.moottoriB = Motor.B;
 		this.moottoriC = Motor.C;
 		moottoriA.setSpeed(20);
-		moottoriB.setSpeed(70);
-		moottoriC.setSpeed(50);
+		moottoriB.setSpeed(50);
+		moottoriC.setSpeed(30);
 	}
 	
 	/**
